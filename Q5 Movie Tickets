@@ -1,0 +1,89 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+
+using namespace std;
+
+class MovieTicket {
+private:
+    // Map of MovieID -> Number of available tickets (initialized to 100)
+    unordered_map<int, int> movieAvailability;
+    
+    // Map of MovieID -> Set of UserIDs who booked this movie
+    unordered_map<int, unordered_set<int>> movieBookings;
+
+    const int TOTAL_SEATS = 100;
+
+public:
+    MovieTicket() {}
+
+    // BOOK X Y: User X books Movie Y
+    bool BOOK(int x, int y) {
+        if (movieBookings[y].count(x)) {
+            // Customer already booked a ticket for this movie
+            return false;
+        }
+        
+        // Check availability
+        if (movieAvailability.find(y) == movieAvailability.end()) {
+            movieAvailability[y] = TOTAL_SEATS;
+        }
+
+        if (movieAvailability[y] <= 0) {
+            // Sold out
+            return false;
+        }
+
+        // Book ticket
+        movieBookings[y].insert(x);
+        movieAvailability[y]--;
+        return true;
+    }
+
+    // CANCEL X Y: User X cancels booking for Movie Y
+    bool CANCEL(int x, int y) {
+        if (movieBookings.find(y) == movieBookings.end() || movieBookings[y].find(x) == movieBookings[y].end()) {
+            // Customer has not booked a ticket for the movie
+            return false;
+        }
+
+        // Cancel ticket
+        movieBookings[y].erase(x);
+        movieAvailability[y]++;
+        return true;
+    }
+
+    // IS_BOOKED X Y: Check if User X has booked Movie Y
+    bool IS_BOOKED(int x, int y) {
+        if (movieBookings.find(y) == movieBookings.end()) {
+            return false;
+        }
+        return movieBookings[y].count(x) > 0;
+    }
+
+    // AVAILABLE_TICKETS Y: Return available tickets for Movie Y
+    int AVAILABLE_TICKETS(int y) {
+        if (movieAvailability.find(y) == movieAvailability.end()) {
+            return TOTAL_SEATS;
+        }
+        return movieAvailability[y];
+    }
+};
+
+// Example Usage (for testing)
+int main() {
+    MovieTicket mt;
+    
+    // Example sequence
+    cout << (mt.BOOK(1, 101) ? "true" : "false") << endl; // true
+    cout << (mt.BOOK(2, 101) ? "true" : "false") << endl; // true
+    cout << mt.AVAILABLE_TICKETS(101) << endl;           // 98
+    cout << (mt.IS_BOOKED(1, 101) ? "true" : "false") << endl; // true
+    cout << (mt.CANCEL(1, 101) ? "true" : "false") << endl; // true
+    cout << mt.AVAILABLE_TICKETS(101) << endl;           // 99
+    cout << (mt.BOOK(2, 101) ? "true" : "false") << endl; // false (already booked)
+
+    return 0;
+}
