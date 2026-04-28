@@ -1,0 +1,45 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <unordered_map>
+
+class Bank {
+private:
+    std::unordered_map<int, long long> accounts;
+
+public:
+    Bank() {}
+
+    bool create(int x, int y) {
+        if (accounts.find(x) != accounts.end()) {
+            accounts[x] += y;
+            return false;
+        } else {
+            accounts[x] = y;
+            return true;
+        }
+    }
+
+    bool debit(int x, int y) {
+        if (accounts.find(x) == accounts.end() || accounts[x] < y) {
+            return false;
+        }
+        accounts[x] -= y;
+        return true;
+    }
+
+    bool credit(int x, int y) {
+        if (accounts.find(x) == accounts.end()) {
+            return false;
+        }
+        accounts[x] += y;
+        return true;
+    }
+
+    long long balance(int x) {
+        if (accounts.find(x) == accounts.end()) {
+            return -1;
+        }
+        return accounts[x];
+    }
+};
